@@ -3,11 +3,6 @@ orbs:
   
 version: 2.1
 
-parameters:
-  FILE:
-    type: string
-    default: $working_directory+"/target/verademo.war"
-
 jobs:
   pipeline_scan:
   # use a java-based image to run the Veracode API wrapper
@@ -36,7 +31,7 @@ jobs:
           command: java -jar pipeline-scan.jar
             --veracode_api_id $VERACODE_API_KEY_ID
             --veracode_api_key $VERACODE_API_KEY_SECRET
-            --file $FILE
+            --file /home/circleci/project/target/verademo.war
             --fail_on_severity "Very High, High"
             --fail_on_cwe "80"
             --gl_vulnerability_generation="true"
