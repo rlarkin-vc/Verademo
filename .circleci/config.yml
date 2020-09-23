@@ -1,13 +1,51 @@
-version: 2.1
-
 orbs:
   maven: circleci/maven@0.0.12
+  
+version: 2.1
+
+jobs:
+  pipeline_scan:
+  # use a java-based image to run the Veracode API wrapper
+    docker:
+      - image: circleci/openjdk:11.0.2-jdk
+    working_directory: ~/repo
+    steps:
+      # get the files from the previous job
+      - attach_workspace:
+          at: .   
+      # 'package' for uploading to Veracode
+#       - run: 
+#           name: "Package for upload to Veracode"
+#           command: zip -r upload.zip verademo.war
+      # grab the Veracode agent
+      - run:
+          name: "Get the Veracode agent"
+          command: |
+            curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+            unzip pipeline-scan-LATEST.zip
+      # upload for scanning
+      # env vars are used to pass login creds and set the scan name
+      - run:
+          name: "Upload to Veracode"
+          command: java -jar pipeline-scan.jar
+            --vid $VERACODE_API_KEY_ID
+            --vkey $VERACODE_API_KEY_SECRET
+            --file $VERACODE_FILEPATH
+            --fail_on_severity "Very High, High"
+            --fail_on_cwe "80"
+            --gl_vulnerability_generation="true"
+            --issue_details "true"
+            --summary_output "true"
+            --project_name "${CI_PROJECT_PATH}"
+            --project_url "${CI_PROJECT_URL}"
+            --project_ref "${CI_COMMIT_REF_NAME}"          
+          #   --baseline_file "veracode-baseline.json"
+
 
 workflows:
   maven_test:
     jobs:
       - maven/test # checkout, build, test, and upload test results
-      
-  security_tests:
-    jobs:
-      - curl -sSL https://download.sourceclear.com/ci.sh | sh
+      - pipeline_scan:
+          requires:
+            - maven/test
