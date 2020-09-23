@@ -28,8 +28,8 @@ jobs:
       - run:
           name: "Upload to Veracode"
           command: java -jar pipeline-scan.jar
-            --vid $VERACODE_API_KEY_ID
-            --vkey $VERACODE_API_KEY_SECRET
+            --veracode_api_id $VERACODE_API_KEY_ID
+            --veracode_api_key $VERACODE_API_KEY_SECRET
             --file $VERACODE_FILEPATH
             --fail_on_severity "Very High, High"
             --fail_on_cwe "80"
