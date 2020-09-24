@@ -6,7 +6,8 @@ jobs:
       - image: circleci/openjdk:stretch
     steps:
       - checkout
-      - run: ./mvnw -Dmaven.test.skip=true package
+#       - run: ./mvnw -Dmaven.test.skip=true package
+      - run: mvn clean package
       - persist_to_workspace:
          root: ./
          paths:
