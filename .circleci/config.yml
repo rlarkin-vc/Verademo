@@ -9,9 +9,9 @@ jobs:
 #       - run: ./mvnw -Dmaven.test.skip=true package
       - run: mvn clean package
       - persist_to_workspace:
-         root: ..
+         root: ./
          paths:
-           - target
+           - target/
 
   pipeline_scan:
     docker:
@@ -19,7 +19,7 @@ jobs:
     steps:
       # get the files from the previous job
       - attach_workspace:
-          at: . 
+          at: ./target
       # 'package' for uploading to Veracode
 #       - run: 
 #           name: "Package for upload to Veracode"
