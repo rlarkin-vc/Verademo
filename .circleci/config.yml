@@ -1,17 +1,24 @@
-orbs:
-  maven: circleci/maven@0.0.12
-  
-version: 2.1
+version: 2.0
 
 jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:stretch
+    steps:
+      - checkout
+      - run: ./mvnw -Dmaven.test.skip=true package
+      - persist_to_workspace:
+         root: ./
+         paths:
+           - target/
+
   pipeline_scan:
-  # use a java-based image to run the Veracode API wrapper
     docker:
       - image: circleci/openjdk:11.0.2-jdk
     steps:
       # get the files from the previous job
       - attach_workspace:
-          at: .   
+          at: ./target 
       # 'package' for uploading to Veracode
 #       - run: 
 #           name: "Package for upload to Veracode"
@@ -39,13 +46,66 @@ jobs:
             --summary_output "true"         
           #   --baseline_file "veracode-baseline.json"
 
-
 workflows:
-  maven_test:
+  version: 2
+
+  build-then-scan:
     jobs:
-      - maven/test # checkout, build, test, and upload test results
+      - build
       - pipeline_scan:
-         requires:
-            - maven/test
-         context:
-           - DemoContext
+          requires:
+            - build
+
+
+
+# orbs:
+#   maven: circleci/maven@0.0.12
+  
+# version: 2.1
+
+# jobs:
+#   pipeline_scan:
+#   # use a java-based image to run the Veracode API wrapper
+#     docker:
+#       - image: circleci/openjdk:11.0.2-jdk
+#     steps:
+#       # get the files from the previous job
+#       - attach_workspace:
+#           at: .   
+#       # 'package' for uploading to Veracode
+# #       - run: 
+# #           name: "Package for upload to Veracode"
+# #           command: zip -r upload.zip verademo.war
+#       # grab the Veracode agent
+#       - run:
+#           name: "Get the Veracode agent"
+#           command: |
+#             curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+#             unzip pipeline-scan-LATEST.zip
+#             echo $(FILE)
+            
+#       # upload for scanning
+#       # env vars are used to pass login creds and set the scan name
+#       - run:
+#           name: "Upload to Veracode"
+#           command: java -jar pipeline-scan.jar
+#             --veracode_api_id $VERACODE_API_KEY_ID
+#             --veracode_api_key $VERACODE_API_KEY_SECRET
+#             --file /home/circleci/project/target/verademo.war
+#             --fail_on_severity "Very High, High"
+#             --fail_on_cwe "80"
+#             --gl_vulnerability_generation="true"
+#             --issue_details "true"
+#             --summary_output "true"         
+#           #   --baseline_file "veracode-baseline.json"
+
+
+# workflows:
+#   maven_test:
+#     jobs:
+#       - maven/test # checkout, build, test, and upload test results
+#       - pipeline_scan:
+#          requires:
+#             - maven/test
+#          context:
+#            - DemoContext
