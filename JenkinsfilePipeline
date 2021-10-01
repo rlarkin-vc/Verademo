@@ -82,18 +82,19 @@ pipeline {
                 echo 'Veracode Pipeline Scan'
                 withCredentials([ usernamePassword(credentialsId: 'veracode_login', usernameVariable: 'VERACODE_API_ID', passwordVariable: 'VERACODE_API_KEY')]) {
                     sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
-                    sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
+                    // sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
+                    unzip zipFile: 'pipeline-scan-LATEST.zip' 
                     sh 'java -jar pipeline-scan.jar \
                     --veracode_api_id "${VERACODE_API_ID}" \
                     --veracode_api_key "${VERACODE_API_SECRET}" \
                     --file "build/libs/sample.jar" \
                     --fail_on_severity="Very High, High" \
                     --fail_on_cwe="80" \
-                    --baseline_file "${CI_BASELINE_PATH}" \
-                    --timeout "${CI_TIMEOUT}" \
-                    --project_name "${env.JOB_NAME}" \
-                    --project_url "${env.GIT_URL}" \
-                    --project_ref "${env.GIT_COMMIT}"'
+                    // --baseline_file "${CI_BASELINE_PATH}" \
+                    // --timeout "${CI_TIMEOUT}" \
+                    // --project_name "${env.JOB_NAME}" \
+                    // --project_url "${env.GIT_URL}" \
+                    // --project_ref "${env.GIT_COMMIT}"'
                 }
             }
         }
