@@ -106,7 +106,7 @@ pipeline {
         stage('SBOM') {
             steps {
                 echo 'Generate SBOM'
-                withCredentials([usernamePassword(credentialsId: 'veracode_login', usernameVariable: 'VERACODE_API_KEY_ID', passwordVariable: 'VERACODE_API_KEY')]) {
+                withCredentials([usernamePassword(credentialsId: 'veracode_login', usernameVariable: 'VERACODE_API_KEY_ID', passwordVariable: 'VERACODE_API_KEY_SECRET')]) {
                     // sh 'ls -lh ./target'
                     sh 'curl -fsS https://tools.veracode.com/veracode-cli/install | sh'
                     sh 'ls -ls'
