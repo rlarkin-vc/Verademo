@@ -77,31 +77,31 @@ pipeline {
         }
 */
 
-        // stage ('Veracode SCA') {
-        //     steps {
-        //         echo 'Veracode SCA'
-        //         withCredentials([ string(credentialsId: 'SRCCLR_API_TOKEN', variable: 'SRCCLR_API_TOKEN')]) {
-        //             withMaven(maven:'maven-3') {
-        //                 script {
-        //                     if(isUnix() == true) {
-        //                         sh "curl -sSL https://download.sourceclear.com/ci.sh | sh"
+        stage ('Veracode SCA') {
+            steps {
+                echo 'Veracode SCA'
+                withCredentials([ string(credentialsId: 'SRCCLR_API_TOKEN', variable: 'SRCCLR_API_TOKEN')]) {
+                    withMaven(maven:'maven-3') {
+                        script {
+                            if(isUnix() == true) {
+                                sh "curl -sSL https://download.sourceclear.com/ci.sh | sh"
 
-        //                         // debug, no upload
-        //                         //sh "curl -sSL https://download.sourceclear.com/ci.sh | DEBUG=1 sh -s -- scan --no-upload"
-        //                     }
-        //                     else {
-        //                         powershell '''
-        //                                     Set-ExecutionPolicy AllSigned -Scope Process -Force
-        //                                     $ProgressPreference = "silentlyContinue"
-        //                                     iex ((New-Object System.Net.WebClient).DownloadString('https://download.srcclr.com/ci.ps1'))
-        //                                     srcclr scan
-        //                                     '''
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                                // debug, no upload
+                                //sh "curl -sSL https://download.sourceclear.com/ci.sh | DEBUG=1 sh -s -- scan --no-upload"
+                            }
+                            else {
+                                powershell '''
+                                            Set-ExecutionPolicy AllSigned -Scope Process -Force
+                                            $ProgressPreference = "silentlyContinue"
+                                            iex ((New-Object System.Net.WebClient).DownloadString('https://download.srcclr.com/ci.ps1'))
+                                            srcclr scan
+                                            '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         stage('SBOM') {
             steps {
@@ -115,45 +115,45 @@ pipeline {
             }
         }
 
-        // stage('Veracode Pipeline Scan') {
-        //     steps {
-        //         echo 'Veracode Pipeline Scan'
-        //         withCredentials([ usernamePassword(credentialsId: 'veracode_login', usernameVariable: 'VERACODE_API_ID', passwordVariable: 'VERACODE_API_KEY')]) {
-        //             sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
-        //             // sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
-        //             unzip zipFile: 'pipeline-scan-LATEST.zip' 
-        //             sh 'java -jar pipeline-scan.jar \
-        //             --veracode_api_id "${VERACODE_API_ID}" \
-        //             --veracode_api_key "${VERACODE_API_KEY}" \
-        //             --file "target/verademo.war" \
-        //             --fail_on_severity="Very High, High" \
-        //             --fail_on_cwe="80" '
-        //             // --baseline_file "${CI_BASELINE_PATH}" \
-        //             // --timeout "${CI_TIMEOUT}" \
-        //             // --project_name "${env.JOB_NAME}" \
-        //             // --project_url "${env.GIT_URL}" \
-        //             // --project_ref "${env.GIT_COMMIT}"'
-        //         }
-        //     }
-        // }
+        stage('Veracode Pipeline Scan') {
+            steps {
+                echo 'Veracode Pipeline Scan'
+                withCredentials([ usernamePassword(credentialsId: 'veracode_login', usernameVariable: 'VERACODE_API_ID', passwordVariable: 'VERACODE_API_KEY')]) {
+                    sh 'curl -O https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip'
+                    // sh 'unzip pipeline-scan-LATEST.zip pipeline-scan.jar'
+                    unzip zipFile: 'pipeline-scan-LATEST.zip' 
+                    sh 'java -jar pipeline-scan.jar \
+                    --veracode_api_id "${VERACODE_API_ID}" \
+                    --veracode_api_key "${VERACODE_API_KEY}" \
+                    --file "target/verademo.war" \
+                    --fail_on_severity="Very High, High" \
+                    --fail_on_cwe="80" '
+                    // --baseline_file "${CI_BASELINE_PATH}" \
+                    // --timeout "${CI_TIMEOUT}" \
+                    // --project_name "${env.JOB_NAME}" \
+                    // --project_url "${env.GIT_URL}" \
+                    // --project_ref "${env.GIT_COMMIT}"'
+                }
+            }
+        }
 
         // only works on *nix, as we're building a Linux image
         //  uses the natively installed docker
-        // stage ('Deploy') {
-        //     when { expression { return (isUnix() == true) } }
-        //     steps {
-        //         echo 'building Docker image'
-        //         sh 'docker version'
+        stage ('Deploy') {
+            when { expression { return (isUnix() == true) } }
+            steps {
+                echo 'building Docker image'
+                sh 'docker version'
 
-        //         ansiColor('xterm') {
-        //             sh 'docker build -t verademo:${BUILD_TAG} .'
-        //         }
+                ansiColor('xterm') {
+                    sh 'docker build -t verademo:${BUILD_TAG} .'
+                }
                 
-        //         // split into separate stage??
-        //         echo 'Deploying ...'
+                // split into separate stage??
+                echo 'Deploying ...'
         
-        //     }
-        // }
+            }
+        }
     }
     post {
         always {
