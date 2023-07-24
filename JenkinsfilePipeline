@@ -21,7 +21,7 @@ pipeline {
     }
 
     stages{
-        stage ('environment verify') {
+        stage ('Verify Environment') {
             steps {
                 script {
                     if (isUnix() == true) {
@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage ('build') {
+        stage ('Build') {
             steps {
                 withMaven(maven:'maven-3') {
                     script {
@@ -76,7 +76,7 @@ pipeline {
             }
         }
 */
-/*
+
         stage ('Veracode SCA') {
             steps {
                 echo 'Veracode SCA'
@@ -102,7 +102,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage('Veracode Pipeline Scan') {
             steps {
                 echo 'Veracode Pipeline Scan'
