@@ -107,10 +107,10 @@ pipeline {
             steps {
                 echo 'Generate SBOM'
                 withCredentials([usernamePassword(credentialsId: 'veracode_login', usernameVariable: 'VERACODE_API_KEY_ID', passwordVariable: 'VERACODE_API_KEY_SECRET')]) {
-                    // sh 'export VERACODE_API_KEY_ID=${VERACODE_API_ID}'
-                    // sh 'export VERACODE_API_KEY_SECRET=${VERACODE_API_KEY}'
                     sh 'curl -fsS https://tools.veracode.com/veracode-cli/install | sh'
-                    sh '/var/lib/jenkins/workspace/Verademo/veracode sbom --type archive --source ./target/verademo.war --output verademo_sbom.json'
+                    sh 'ls -lh'
+                    sh 'ls -lh ./target'
+                    sh '/var/lib/jenkins/workspace/Verademo/veracode sbom --type directory --source target/verademo --output verademo_sbom.json'
                 }
             }
         }
